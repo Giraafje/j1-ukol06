@@ -8,35 +8,36 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.time.MonthDay;
 import java.util.List;
+import java.util.stream.Stream;
 
 public class SvatkySluzba {
 
-    private final ObjectMapper objectMapper = JsonMapper.builder()
-            .addModule(new JavaTimeModule())
-            .build();
-    private final Path cestaKDatum = Path.of("data/svatky.json");
-    private final SeznamSvatku seznamSvatku;
+  private final ObjectMapper objectMapper = JsonMapper.builder()
+      .addModule(new JavaTimeModule())
+      .build();
+  private final Path cestaKDatum = Path.of("data/svatky.json");
+  private final SeznamSvatku seznamSvatku;
 
-    public SvatkySluzba() throws IOException {
-        // TODO načíst seznam svátků ze souboru svatky.json
+  public SvatkySluzba() throws IOException {
+    // načíst seznam svátků ze souboru svatky.json
+    seznamSvatku = objectMapper.readValue(cestaKDatum.toFile(), SeznamSvatku.class);
+  }
 
-        // Následující řádek po vlastní implementaci smažete.
-        seznamSvatku = null;
-    }
+  public List<String> vyhledatSvatkyDnes() {
+    return vyhledatSvatkyKeDni(MonthDay.now());
+  }
 
-    public List<String> vyhledatSvatkyDnes() {
-        return vyhledatSvatkyKeDni(MonthDay.now());
-    }
+  public List<String> vyhledatSvatkyKeDni(MonthDay day) {
+    // získat seznam svátků
+    // převést na Stream
+    Stream<Svatek> svatkyStream = seznamSvatku.getSvatky().stream();
 
-    public List<String> vyhledatSvatkyKeDni(MonthDay day) {
-        // TODO
-        // získat seznam svátků
-        // převést na Stream
-        // pomocí metody filter() vybrat jen ty, které odpovídají zadanému dni (porovnat MonthDay pomocí metodyequals())
-        // pomocí metody map() získat z objektu jméno
-        // pomocí toList() převést na List
-
-        // Následující řádek po vlastní implementaci smažete.
-        return List.of();
-    }
+    // pomocí metody filter() vybrat jen ty, které odpovídají zadanému dni (porovnat MonthDay pomocí metody equals())
+    // pomocí metody map() získat z objektu jméno
+    // pomocí toList() převést na List
+    return svatkyStream
+        .filter(svatek -> svatek.getDen().equals(day))
+        .map(Svatek::getJmeno)
+        .toList();
+  }
 }
